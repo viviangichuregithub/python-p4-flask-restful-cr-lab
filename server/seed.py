@@ -1,25 +1,20 @@
-#!/usr/bin/env python3
+# server/seed.py
 
-from app import app
-from models import db, Plant
+from app import app, db
+from models import Plant
 
 with app.app_context():
+    # Drop all tables and recreate (optional, fresh start)
+    db.drop_all()
+    db.create_all()
 
-    Plant.query.delete()
+    # Sample plants
+    plants = [
+        Plant(name="Douglas Fir", image=None, price=25.0),
+        Plant(name="Fiddle Leaf Fig", image=None, price=50.0),
+        Plant(name="Snake Plant", image=None, price=15.0),
+    ]
 
-    aloe = Plant(
-        id=1,
-        name="Aloe",
-        image="./images/aloe.jpg",
-        price=11.50,
-    )
-
-    zz_plant = Plant(
-        id=2,
-        name="ZZ Plant",
-        image="./images/zz-plant.jpg",
-        price=25.98,
-    )
-
-    db.session.add_all([aloe, zz_plant])
+    db.session.add_all(plants)
     db.session.commit()
+    print("Seed data inserted successfully!")
