@@ -1,20 +1,15 @@
 from flask_sqlalchemy import SQLAlchemy
-from decimal import Decimal
+from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
-class Plant(db.Model):
-    __tablename__ = "plants"
+class Plant(db.Model, SerializerMixin):
+    __tablename__ = 'plants'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)  # added max length for consistency
-    image = db.Column(db.String(255), nullable=True)  # allow NULL
-    price = db.Column(db.Numeric(10, 2), nullable=True)  # allow NULL, stores as Decimal
+    name = db.Column(db.String)
+    image = db.Column(db.String)
+    price = db.Column(db.Float)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "image": self.image,
-            "price": float(self.price) if self.price is not None else None
-        }
+    def __repr__(self):
+        return f'<Plant {self.name} | Price: {self.price}>'
