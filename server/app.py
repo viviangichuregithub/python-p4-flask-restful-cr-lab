@@ -2,15 +2,14 @@
 from flask import Flask, jsonify, request, make_response
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
-
-from models import db, Plant  # make sure db is defined in models.py
+from models import db, Plant
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///plants.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
-db.init_app(app)  # initialize db with app
+db.init_app(app)
 migrate = Migrate(app, db)
 
 api = Api(app)
@@ -24,8 +23,8 @@ class Plants(Resource):
         data = request.get_json()
         new_plant = Plant(
             name=data.get('name'),
-            image=data.get('image'),  # can be None
-            price=data.get('price')   # can be None
+            image=data.get('image'),
+            price=data.get('price')
         )
         db.session.add(new_plant)
         db.session.commit()
@@ -35,7 +34,7 @@ api.add_resource(Plants, '/plants')
 
 class PlantByID(Resource):
     def get(self, id):
-        plant = Plant.query.filter_by(id=id).first()
+        plant = Plant.query.get(id)
         if plant:
             return make_response(jsonify(plant.to_dict()), 200)
         return make_response(jsonify({"error": "Plant not found"}), 404)
@@ -43,4 +42,6 @@ class PlantByID(Resource):
 api.add_resource(PlantByID, '/plants/<int:id>')
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Ensure tables are created if not using migrations
     app.run(port=5555, debug=True)
